@@ -9,6 +9,13 @@ require __DIR__.'/../src/bootstrap.php';
 
 use Composer\Console\Application;
 
+if ($path = getenv('SPRINGBOARD_PATH')) {
+    define('SPRINGBOARD_PATH', realpath(getenv('SPRINGBOARD_PATH')));
+    define('SPRINGBOARD_VENDOR', SPRINGBOARD_PATH.DIRECTORY_SEPARATOR.'vendor');
+    define('SPRINGBOARD_COMPOSER', SPRINGBOARD_VENDOR.DIRECTORY_SEPARATOR.'composer');
+    define('SPRINGBOARD_INSTALLED_JSON', SPRINGBOARD_COMPOSER.DIRECTORY_SEPARATOR.'installed.json');
+}
+
 error_reporting(-1);
 
 if (function_exists('ini_set')) {

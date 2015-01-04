@@ -71,7 +71,13 @@ class AutoloadGenerator
         $vendorPathToTargetDirCode = $filesystem->findShortestPathCode($vendorPath, realpath($targetDir), true);
 
         $appBaseDirCode = $filesystem->findShortestPathCode($vendorPath, $basePath, true);
-        $appBaseDirCode = str_replace('__DIR__', '$vendorDir', $appBaseDirCode);
+
+        if (defined('SPRINGBOARD_PATH')) {
+            $vendorPathCode52 = "'".SPRINGBOARD_VENDOR."'";
+            $appBaseDirCode = str_replace('__DIR__', 'realpath(__DIR__.\'/../\')', $appBaseDirCode);
+        } else {
+            $appBaseDirCode = str_replace('__DIR__', '$vendorDir', $appBaseDirCode);
+        }
 
         $namespacesFile = <<<EOF
 <?php
@@ -200,6 +206,10 @@ EOF;
         }
 
         foreach ($autoloads['classmap'] as $dir) {
+            if (!is_dir($dir) && defined('SPRINGBOARD_PATH')) {
+                $dir = str_replace($basePath, SPRINGBOARD_PATH, $dir);
+            }
+
             foreach (ClassMapGenerator::createMap($dir, null, $this->io) as $class => $path) {
                 $path = $this->getPathCode($filesystem, $basePath, $vendorPath, $path);
                 $classMap[$class] = $path.",\n";
@@ -600,7 +610,9 @@ FOOTER;
                             $path = ltrim(preg_replace('{^'.$targetDir.'}', '', ltrim($path, '\\/')), '\\/');
                         } else {
                             // add target-dir from file paths that don't have it
-                            $path = $package->getTargetDir() . '/' . $path;
+                            if (strpos($path, $package->getTargetDir()) === false) {
+                                $path = $package->getTargetDir() . '/' . $path;
+                            }
                         }
                     }
 

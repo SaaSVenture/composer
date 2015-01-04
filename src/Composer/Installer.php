@@ -152,6 +152,12 @@ class Installer
         $this->installationManager = $installationManager;
         $this->eventDispatcher = $eventDispatcher;
         $this->autoloadGenerator = $autoloadGenerator;
+
+        if (defined('SPRINGBOARD_INSTALLED_JSON')) {
+            $springboardLock = new JsonFile(SPRINGBOARD_INSTALLED_JSON);
+            $installedSpringboardRepo = new InstalledFilesystemRepository($springboardLock);
+            $this->repositoryManager->setLocalRepository($installedSpringboardRepo);
+        }
     }
 
     /**
